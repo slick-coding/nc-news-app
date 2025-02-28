@@ -12,6 +12,7 @@ if (!process.env.PGDATABASE) {
     console.log(`Connected to ${process.env.PGDATABASE}`);
 }
 
+/*
 
 function findUsers() {
     return db.query(`SELECT username FROM users`).then((response) => {
@@ -40,5 +41,5 @@ function findBadComments() {
 findUsers()
 findCodingArticles()
 findBadComments()
-
+*/
 module.exports = db;
