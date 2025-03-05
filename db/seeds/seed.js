@@ -48,7 +48,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
                 commentData,
                 articleLookup
             );
-            insertComments(formattedComments);
+            return insertComments(formattedComments);
         });
 };
 module.exports = seed;
