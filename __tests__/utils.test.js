@@ -1,8 +1,8 @@
-const {
-    convertTimestampToDate,
-    createLookupObject,
-} = require("../db/seeds/utils");
+const { convertTimestampToDate, createLookupObject, checkExists } = require("../db/seeds/utils");
 const userData = require("../db/data/test-data/users");
+const db = require("../db/connection")
+
+afterAll(() => db.end());
 
 describe("convertTimestampToDate", () => {
     test("returns a new object", () => {
@@ -57,5 +57,16 @@ describe("createLookupObject", () => {
         const input = userData;
         const result = createLookupObject(input, "name", "username");
         expect(result.paul).toBe("rogersop");
+    });
+});
+
+describe("checkExists", () => {
+    it("returns undefined when given a value that is within the table's column data", () => {
+        return checkExists("articles", "article_id", "2").then((result) => {
+            expect(result).toBe(undefined);
+        });
+    });
+    it("returns an error when given a value that is not within the table's column data", () => {
+        expect(checkExists("articles", "article_id", "67")).rejects.toEqual({"msg": "Not found", "status": 404})
     });
 });
