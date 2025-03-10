@@ -14,3 +14,14 @@ describe("GET /api", () => {
             });
     });
 });
+
+describe("Error Handling", () => {
+    test("404: Responds with an error when given an invalid endpoint", () => {
+        return request(app)
+            .get("/api/fish")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Path not found");
+            });
+    });
+});
