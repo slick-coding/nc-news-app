@@ -1,10 +1,12 @@
 const express = require("express");
-const {getApi} = require("./controllers/app.controllers");
+const { getApi } = require("./controllers/app.controllers");
+const { getTopics } = require("./controllers/topics.controllers.js");
 
 const app = express();
 
-app.get("/api", getApi)
+app.get("/api", getApi);
 
+app.get("/api/topics", getTopics);
 
 // Error Endpoints
 app.all("*", (req, res, next) => {
