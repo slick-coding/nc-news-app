@@ -1,5 +1,8 @@
 const { convertTimestampToDate, createLookupObject, checkExists } = require("../db/seeds/utils");
 const userData = require("../db/data/test-data/users");
+const db = require("../db/connection")
+
+afterAll(() => db.end());
 
 describe("convertTimestampToDate", () => {
     test("returns a new object", () => {
