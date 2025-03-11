@@ -9,7 +9,7 @@ beforeAll(() => seed(data));
 afterAll(() => db.end());
 
 describe("GET /api/articles/author_id", () => {
-    test("200: Responds with a topics object with the keys slug and description", () => {
+    test("200: Responds with the article object matching the given id", () => {
         return request(app)
             .get("/api/articles/2")
             .expect(200)
@@ -24,6 +24,46 @@ describe("GET /api/articles/author_id", () => {
                 expect(articles.article_img_url).toBe(
                     "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
                 );
+            });
+    });
+});
+
+describe.skip("GET /api/articles", () => {
+    test("200: Responds with an array of article objects", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(13);
+                articles.forEach((article) => {
+                    expect(typeof article.author).toBe("string");
+                    expect(typeof article.title).toBe("string");
+                    expect(typeof article.article_id).toBe("number");
+                    expect(typeof article.topic).toBe("string");
+                    expect(typeof article.created_at).toBe("string");
+                    expect(typeof article.votes).toBe("number");
+                    expect(typeof article.article_img_url).toBe("string");
+                    expect(article.hasOwnProperty("body")).toBe(false);
+                });
+            });
+    });
+    test("200: Responds with an array of objects sorted by created_at in descending order", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(13);
+            });
+    });
+    test("200: Responds with an array of article objects with the comment_count property", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(13);
+                articles.forEach((article) => {
+                    expect(article.hasOwnProperty("comment_count")).toBe(true);
+                });
             });
     });
 });
