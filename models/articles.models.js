@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const format = require("pg-format");
 const { checkExists, commentCountLookup } = require("../db/seeds/utils");
 
 exports.fetchArticlesById = (article_id) => {
@@ -40,5 +41,24 @@ exports.fetchCommentsById = (article_id) => {
 
     return Promise.all(promises).then(([{ rows }]) => {
         return rows;
+    });
+};
+
+exports.insertComment = (article_id, author, body) => {
+    // const insertComment = (
+    //     `INSERT INTO comments (article_id, author, body) VALUES $1, $2, $3 RETURNING *;`,
+    //     [article_id, author, body]
+    // );
+
+    const promises = [
+        db.query(
+            `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *;`,
+            [article_id, author, body]
+        ),
+        checkExists("articles", "article_id", article_id)
+    ]
+    return Promise.all(promises).then(([{ rows }]) => {
+        console.log(rows)
+        return rows[0];
     });
 };

@@ -109,7 +109,7 @@ describe("POST api/articles", () => {
             return request(app)
                 .post("/api/articles/4/comments")
                 .send({
-                    author: "slick-coding",
+                    author: "butter_bridge",
                     body: "I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin",
                 })
                 .expect(201)
@@ -121,7 +121,7 @@ describe("POST api/articles", () => {
                     expect(typeof author).toBe("string");
                     expect(typeof body).toBe("string");
                     expect(typeof article_id).toBe("number");
-                    expect(author).toBe("slick-coding");
+                    expect(author).toBe("butter_bridge");
                     expect(body).toBe(
                         "I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin"
                     );
