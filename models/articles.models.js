@@ -39,7 +39,6 @@ exports.fetchCommentsById = (article_id) => {
     const promises = [db.query(sqlQuery, [article_id]), checkExists("comments", "article_id", article_id)];
 
     return Promise.all(promises).then(([{ rows }]) => {
-        console.log(rows);
         return rows;
     });
 };
