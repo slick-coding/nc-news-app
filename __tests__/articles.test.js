@@ -28,7 +28,7 @@ describe("GET /api/articles/author_id", () => {
     });
 });
 
-describe.skip("GET /api/articles", () => {
+describe("GET /api/articles", () => {
     test("200: Responds with an array of article objects", () => {
         return request(app)
             .get("/api/articles")
@@ -52,6 +52,10 @@ describe.skip("GET /api/articles", () => {
             .get("/api/articles")
             .expect(200)
             .then(({ body: { articles } }) => {
+                expect(articles).toBeSorted({
+                    key: "created_at",
+                    descending: true,
+                });
                 expect(articles.length).toBe(13);
             });
     });
@@ -60,6 +64,7 @@ describe.skip("GET /api/articles", () => {
             .get("/api/articles")
             .expect(200)
             .then(({ body: { articles } }) => {
+                console.log(articles);
                 expect(articles.length).toBe(13);
                 articles.forEach((article) => {
                     expect(article.hasOwnProperty("comment_count")).toBe(true);
