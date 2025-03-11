@@ -14,23 +14,31 @@ exports.fetchArticlesById = (article_id) => {
 exports.fetchArticles = () => {
     let sqlQuery = "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ";
 
-    sqlQuery += `ORDER BY created_at `
+    sqlQuery += `ORDER BY created_at `;
 
-    sqlQuery += "DESC"
+    sqlQuery += "DESC";
 
-    const commentCount = () => {
+    const promises = [db.query(sqlQuery), commentCountLookup()];
 
-    }
-
-    const promises = [
-        db.query(sqlQuery),
-        commentCountLookup()
-    ]
-
-    return Promise.all(promises).then(([{rows}, commentLookup]) => {
+    return Promise.all(promises).then(([{ rows }, commentLookup]) => {
         return rows.map((row) => {
-            row.comment_count = commentLookup[row.article_id]
-            return row
-        })
-    })
+            row.comment_count = commentLookup[row.article_id];
+            return row;
+        });
+    });
+};
+
+exports.fetchCommentsById = (article_id) => {
+    let sqlQuery =
+        "SELECT comment_id, votes, created_at, author, body, article_id FROM comments WHERE article_id = $1 ";
+
+    sqlQuery += `ORDER BY created_at `;
+
+    sqlQuery += "DESC";
+
+    const promises = [db.query(sqlQuery, [article_id]), checkExists("comments", "article_id", article_id)];
+
+    return Promise.all(promises).then(([{ rows }]) => {
+        return rows;
+    });
 };

@@ -28,6 +28,36 @@ describe("GET /api/articles/author_id", () => {
     });
 });
 
+describe("GET /api/articles/author_id/comments", () => {
+    test("200: Responds with an array of comments for the article matching the given id", () => {
+        return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then(({ body: { comments } }) => {
+                comments.forEach((comment) => {
+                    expect(typeof comment.comment_id).toBe("number");
+                    expect(typeof comment.votes).toBe("number");
+                    expect(typeof comment.created_at).toBe("string");
+                    expect(typeof comment.author).toBe("string");
+                    expect(typeof comment.body).toBe("string");
+                    expect(typeof comment.article_id).toBe("number");
+                });
+            });
+    });
+    test("200: Responds with an array of comments sorted by created_at in descending order", () => {
+        return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then(({ body: { comments } }) => {
+                expect(comments).toBeSorted({
+                    key: "created_at",
+                    descending: true,
+                });
+                expect(comments.length).toBe(11);
+            });
+    });
+});
+
 describe("GET /api/articles", () => {
     test("200: Responds with an array of article objects", () => {
         return request(app)
@@ -74,28 +104,56 @@ describe("GET /api/articles", () => {
 });
 
 describe("Error Handling", () => {
-    test("404: Responds with an error when given an invalid endpoint", () => {
-        return request(app)
-            .get("/api/articles/coding")
-            .expect(400)
-            .then(({ body }) => {
-                expect(body.msg).toBe("Bad request");
-            });
+    describe("/api/articles", () => {
+        test("400: Responds with an error when given an invalid endpoint", () => {
+            return request(app)
+                .get("/api/articles/coding")
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
+        test("404: Responds with an error when given an invalid article_id", () => {
+            return request(app)
+                .get("/api/articles/67")
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Not found");
+                });
+        });
+        test("400: Responds with an error when SQL injection is attempted", () => {
+            return request(app)
+                .get("/api/articles/2; DROP TABLES")
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
     });
-    test("404: Responds with an error when given an invalid article_id", () => {
-        return request(app)
-            .get("/api/articles/67")
-            .expect(404)
-            .then(({ body }) => {
-                expect(body.msg).toBe("Not found");
-            });
-    });
-    test("400: Responds with an error when SQL injection is attempted", () => {
-        return request(app)
-            .get("/api/articles/2; DROP TABLES")
-            .expect(400)
-            .then(({ body }) => {
-                expect(body.msg).toBe("Bad request");
-            });
+    describe("/api/articles/author_id/comments", () => {
+        test("404: responds with an error when given an invalid article_id", () => {
+            return request(app)
+                .get("/api/articles/32/comments")
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Not found");
+                });
+        });
+        test("404: responds with an error when SQL injection is attempted", () => {
+            return request(app)
+                .get("/api/articles/2/comments; DROP TABLES")
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Path not found");
+                });
+        });
+        test("400: responds with an error when SQL injection is attempted in the author_id", () => {
+            return request(app)
+                .get("/api/articles/2; DROP TABLES/comments")
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
     });
 });
