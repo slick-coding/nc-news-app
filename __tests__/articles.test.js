@@ -103,6 +103,33 @@ describe("GET /api/articles", () => {
     });
 });
 
+describe("POST api/articles", () => {
+    describe("POST: /api/articles/:article_id/comments", () => {
+        test("201: respond with the newly posted snack", () => {
+            return request(app)
+                .post("/api/articles/4/comments")
+                .send({
+                    author: "slick-coding",
+                    body: "I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin",
+                })
+                .expect(201)
+                .then(({ body: { comment } }) => {
+                    const { comment_id, votes, created_at, author, body, article_id } = comment;
+                    expect(typeof comment_id).toBe("number");
+                    expect(typeof votes).toBe("number");
+                    expect(typeof created_at).toBe("string");
+                    expect(typeof author).toBe("string");
+                    expect(typeof body).toBe("string");
+                    expect(typeof article_id).toBe("number");
+                    expect(author).toBe("slick-coding");
+                    expect(body).toBe(
+                        "I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin"
+                    );
+                });
+        });
+    });
+});
+
 describe("Error Handling", () => {
     describe("/api/articles", () => {
         test("400: Responds with an error when given an invalid endpoint", () => {
