@@ -1,6 +1,10 @@
-const { convertTimestampToDate, createLookupObject, checkExists } = require("../db/seeds/utils");
+const { convertTimestampToDate, createLookupObject, checkExists, commentCountLookup } = require("../db/seeds/utils");
 const userData = require("../db/data/test-data/users");
-const db = require("../db/connection")
+const db = require("../db/connection");
+const seed = require("../db/seeds/seed");
+const data = require("../db/data/test-data/index");
+
+beforeAll(() => seed(data));
 
 afterAll(() => db.end());
 
@@ -67,6 +71,22 @@ describe("checkExists", () => {
         });
     });
     it("returns an error when given a value that is not within the table's column data", () => {
-        expect(checkExists("articles", "article_id", "67")).rejects.toEqual({"msg": "Not found", "status": 404})
+        expect(checkExists("articles", "article_id", "67")).rejects.toEqual({ msg: "Not found", status: 404 });
+    });
+});
+
+describe("commentCountLookup", () => {
+    it("returns an object with the correct number of keys", () => {
+        return commentCountLookup().then((commentCount) => {
+            console.log(commentCount);
+            expect(Object.keys(commentCount).length).toBe(13);
+        });
+    });
+    it("returns a lookup object with the correct number of comments", () => {
+        return commentCountLookup().then((commentCount) => {
+            expect(commentCount[1]).toBe(11);
+            expect(commentCount[2]).toBe(0);
+            expect(commentCount[3]).toBe(2);
+        });
     });
 });
