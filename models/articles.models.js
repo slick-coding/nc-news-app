@@ -45,11 +45,6 @@ exports.fetchCommentsById = (article_id) => {
 };
 
 exports.insertComment = (article_id, author, body) => {
-    // const insertComment = (
-    //     `INSERT INTO comments (article_id, author, body) VALUES $1, $2, $3 RETURNING *;`,
-    //     [article_id, author, body]
-    // );
-
     const promises = [
         db.query(
             `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *;`,

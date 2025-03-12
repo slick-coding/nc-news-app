@@ -131,7 +131,7 @@ describe("POST api/articles", () => {
 });
 
 describe("Error Handling", () => {
-    describe("/api/articles", () => {
+    describe("GET /api/articles", () => {
         test("400: Responds with an error when given an invalid endpoint", () => {
             return request(app)
                 .get("/api/articles/coding")
@@ -157,7 +157,7 @@ describe("Error Handling", () => {
                 });
         });
     });
-    describe("/api/articles/author_id/comments", () => {
+    describe("GET /api/articles/author_id/comments", () => {
         test("404: responds with an error when given an invalid article_id", () => {
             return request(app)
                 .get("/api/articles/32/comments")
@@ -180,6 +180,45 @@ describe("Error Handling", () => {
                 .expect(400)
                 .then(({ body }) => {
                     expect(body.msg).toBe("Bad request");
+                });
+        });
+    });
+    describe("POST /api/articles", () => {
+        test("400: Responds with an error when given invalid data", () => {
+            return request(app)
+                .post("/api/articles/4/comments")
+                .send({
+                    fish_property: true,
+                    head: 1,
+                    body: "Fish are known to have one head",
+                })
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
+        test("404: responds with an error when given an invalid article_id", () => {
+            return request(app)
+                .post("/api/articles/47/comments")
+                .send({
+                    author: "butter_bridge",
+                    body: "I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin",
+                })
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Not found");
+                });
+        });
+        test("404: responds with an error when SQL injection is attempted", () => {
+            return request(app)
+                .post("/api/articles/47/comments")
+                .send({
+                    author: "butter_bridge",
+                    body: "I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin ' DROP TABLES",
+                })
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Not found");
                 });
         });
     });
