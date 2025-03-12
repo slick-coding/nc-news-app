@@ -130,6 +130,43 @@ describe("POST api/articles", () => {
     });
 });
 
+describe("PATCH api/articles", () => {
+    describe("PATCH: /api/articles/author_id", () => {
+        test("200: respond with the newly patched comment", () => {
+            return request(app)
+                .patch("/api/articles/1/comments")
+                .send({
+                    inc_votes: 1,
+                })
+                .expect(200)
+                .then(({ body: { article } }) => {
+                    const { author, title, article_id, topic, created_at, votes, article_img_url, body } = article;
+                    expect(typeof author).toBe("string");
+                    expect(typeof title).toBe("string");
+                    expect(typeof article_id).toBe("number");
+                    expect(typeof topic).toBe("string");
+                    expect(typeof created_at).toBe("string");
+                    expect(typeof votes).toBe("number");
+                    expect(typeof article_img_url).toBe("string");
+                    expect(typeof body).toBe("string");
+                    expect(votes).toBe(101);
+                });
+        });
+        test("200: works with negative values", () => {
+            return request(app)
+                .patch("/api/articles/1/comments")
+                .send({
+                    inc_votes: -100,
+                })
+                .expect(200)
+                .then(({ body: { article } }) => {
+                    const { votes } = article;
+                    expect(votes).toBe(0);
+                });
+        });
+    });
+});
+
 describe("Error Handling", () => {
     describe("GET /api/articles", () => {
         test("400: Responds with an error when given an invalid endpoint", () => {
