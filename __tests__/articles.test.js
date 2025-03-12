@@ -105,7 +105,7 @@ describe("GET /api/articles", () => {
 
 describe("POST api/articles", () => {
     describe("POST: /api/articles/:article_id/comments", () => {
-        test("201: respond with the newly posted snack", () => {
+        test("201: respond with the newly posted comment", () => {
             return request(app)
                 .post("/api/articles/4/comments")
                 .send({
