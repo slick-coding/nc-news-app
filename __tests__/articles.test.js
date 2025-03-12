@@ -183,7 +183,7 @@ describe("Error Handling", () => {
                 });
         });
     });
-    describe.only("POST /api/articles", () => {
+    describe("POST /api/articles", () => {
         test("400: Responds with an error when given invalid data", () => {
             return request(app)
                 .post("/api/articles/4/comments")
