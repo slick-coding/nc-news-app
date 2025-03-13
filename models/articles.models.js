@@ -46,14 +46,33 @@ exports.fetchCommentsById = (article_id) => {
 
 exports.insertComment = (article_id, author, body) => {
     const promises = [
-        db.query(
-            `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *;`,
-            [article_id, author, body]
-        ),
-        checkExists("articles", "article_id", article_id)
-    ]
+        db.query(`INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *;`, [
+            article_id,
+            author,
+            body,
+        ]),
+        checkExists("articles", "article_id", article_id),
+    ];
     return Promise.all(promises).then(([{ rows }]) => {
-        console.log(rows)
+        return rows[0];
+    });
+};
+
+exports.updateArticleById = (article_id, newVote) => {
+    if (isNaN(newVote)) {
+        return Promise.reject({ status: 400, msg: "Bad request" });
+    }
+
+    const promises = [
+        db.query(`UPDATE articles 
+            SET votes = votes + $1 
+            WHERE article_id = $2 
+            RETURNING *`, 
+            [newVote, article_id]),
+        checkExists("articles", "article_id", article_id),
+    ];
+
+    return Promise.all(promises).then(([{ rows }]) => {
         return rows[0];
     });
 };

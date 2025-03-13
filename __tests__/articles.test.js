@@ -105,7 +105,7 @@ describe("GET /api/articles", () => {
 
 describe("POST api/articles", () => {
     describe("POST: /api/articles/:article_id/comments", () => {
-        test("201: respond with the newly posted snack", () => {
+        test("201: respond with the newly posted comment", () => {
             return request(app)
                 .post("/api/articles/4/comments")
                 .send({
@@ -125,6 +125,43 @@ describe("POST api/articles", () => {
                     expect(body).toBe(
                         "I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin"
                     );
+                });
+        });
+    });
+});
+
+describe("PATCH api/articles", () => {
+    describe("PATCH: /api/articles/author_id", () => {
+        test("200: respond with the newly patched article", () => {
+            return request(app)
+                .patch("/api/articles/1")
+                .send({
+                    inc_votes: 1,
+                })
+                .expect(200)
+                .then(({ body: { article } }) => {
+                    const { author, title, article_id, topic, created_at, votes, article_img_url, body } = article;
+                    expect(typeof author).toBe("string");
+                    expect(typeof title).toBe("string");
+                    expect(typeof article_id).toBe("number");
+                    expect(typeof topic).toBe("string");
+                    expect(typeof created_at).toBe("string");
+                    expect(typeof votes).toBe("number");
+                    expect(typeof article_img_url).toBe("string");
+                    expect(typeof body).toBe("string");
+                    expect(votes).toBe(101);
+                });
+        });
+        test("200: works with negative values", () => {
+            return request(app)
+                .patch("/api/articles/1")
+                .send({
+                    inc_votes: -101,
+                })
+                .expect(200)
+                .then(({ body: { article } }) => {
+                    const { votes } = article;
+                    expect(votes).toBe(0);
                 });
         });
     });
@@ -158,12 +195,20 @@ describe("Error Handling", () => {
         });
     });
     describe("GET /api/articles/author_id/comments", () => {
-        test("404: responds with an error when given an invalid article_id", () => {
+        test("404: responds with an error when given an article_id that does not exist", () => {
             return request(app)
                 .get("/api/articles/32/comments")
                 .expect(404)
                 .then(({ body }) => {
                     expect(body.msg).toBe("Not found");
+                });
+        });
+        test("400: responds with an error when given an article_id with invalid data type", () => {
+            return request(app)
+                .get("/api/articles/mitch/comments")
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
                 });
         });
         test("404: responds with an error when SQL injection is attempted", () => {
@@ -172,14 +217,6 @@ describe("Error Handling", () => {
                 .expect(404)
                 .then(({ body }) => {
                     expect(body.msg).toBe("Path not found");
-                });
-        });
-        test("400: responds with an error when SQL injection is attempted in the author_id", () => {
-            return request(app)
-                .get("/api/articles/2; DROP TABLES/comments")
-                .expect(400)
-                .then(({ body }) => {
-                    expect(body.msg).toBe("Bad request");
                 });
         });
     });
@@ -211,15 +248,40 @@ describe("Error Handling", () => {
         });
         test("404: responds with an error when SQL injection is attempted", () => {
             return request(app)
-                .post("/api/articles/47/comments")
+                .post("/api/articles/1/comments")
                 .send({
                     author: "butter_bridge",
                     body: "I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin ' DROP TABLES",
                 })
-                .expect(404)
-                .then(({ body }) => {
-                    expect(body.msg).toBe("Not found");
+                .expect(201)
+                .then(({ body: { comment } }) => {
+                    const {body,} = comment;
+                    expect(body).toBe("I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin ' DROP TABLES");
                 });
         });
     });
+    describe("PATCH /api/articles/author_id", () => {
+        test("400: responds with an error when given incorrect data in the patch", () =>{
+            return request(app)
+            .patch("/api/articles/1")
+            .send({
+                newVote: "All of them!"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad request")
+            })
+        })
+        test("404: responds with an error when given an author id that is not in the data", () => {
+            return request(app)
+            .patch("/api/articles/234")
+            .send({
+                inc_votes: 5
+            })
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe("Not found")
+            })
+        })
+    })
 });
