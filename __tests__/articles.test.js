@@ -254,6 +254,14 @@ describe("Error Handling", () => {
                     expect(body.msg).toBe("Bad request");
                 });
         });
+        test("404: Responds with an error when given an incorrect topic", () => {
+            return request(app)
+                .get("/api/articles?topic=;DROP TABLES")
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Not found");
+                });
+        });
     });
     describe("GET /api/articles/article_id/comments", () => {
         test("404: responds with an error when given an article_id that does not exist", () => {
