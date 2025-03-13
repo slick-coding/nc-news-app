@@ -8,7 +8,7 @@ beforeAll(() => seed(data));
 
 afterAll(() => db.end());
 
-describe("GET /api/articles/author_id", () => {
+describe("GET /api/articles/article_id", () => {
     test("200: Responds with the article object matching the given id", () => {
         return request(app)
             .get("/api/articles/2")
@@ -28,7 +28,7 @@ describe("GET /api/articles/author_id", () => {
     });
 });
 
-describe("GET /api/articles/author_id/comments", () => {
+describe("GET /api/articles/article_id/comments", () => {
     test("200: Responds with an array of comments for the article matching the given id", () => {
         return request(app)
             .get("/api/articles/1/comments")
@@ -131,7 +131,7 @@ describe("POST api/articles", () => {
 });
 
 describe("PATCH api/articles", () => {
-    describe("PATCH: /api/articles/author_id", () => {
+    describe("PATCH: /api/articles/article_id", () => {
         test("200: respond with the newly patched article", () => {
             return request(app)
                 .patch("/api/articles/1")
@@ -194,7 +194,7 @@ describe("Error Handling", () => {
                 });
         });
     });
-    describe("GET /api/articles/author_id/comments", () => {
+    describe("GET /api/articles/article_id/comments", () => {
         test("404: responds with an error when given an article_id that does not exist", () => {
             return request(app)
                 .get("/api/articles/32/comments")
