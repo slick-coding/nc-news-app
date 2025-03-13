@@ -122,6 +122,30 @@ describe("GET /api/articles", () => {
                 });
             });
     });
+    test("200: responds with an array of articles with the specified topic", () => {
+        return request(app)
+            .get("/api/articles?topic=mitch")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+                articles.forEach((article) => {
+                    expect(article.topic).toBe("mitch");
+                });
+            });
+    });
+    test("200: responds with an array of articles with the specified topic, sorted in the correct order", () => {
+        return request(app)
+            .get("/api/articles?topic=mitch&sort_by=votes&order=desc")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+                articles.forEach((article) => {
+                    expect(article.topic).toBe("mitch");
+                });
+                expect(articles).toBeSorted({
+                    key: "votes",
+                    descending: true,
+                });
+            });
+    });
 });
 
 describe("POST api/articles", () => {
