@@ -8,16 +8,16 @@ beforeAll(() => seed(data));
 
 afterAll(() => db.end());
 
-describe("GET api/users", () => {
+describe("GET /api/users", () => {
     test("Responds with an array of users", () => {
         return request(app)
         .get("/api/users")
         .expect(200)
-        .then(({body: {comments}}) => {
-            comments.forEach((comment) => {
-                expect(comment.hasOwnProperty("username")).toBe(true)
-                expect(comment.hasOwnProperty("name")).toBe(true)
-                expect(comment.hasOwnProperty("avatar_url")).toBe(true)
+        .then(({body: {users}}) => {
+            users.forEach((user) => {
+                expect(user.hasOwnProperty("username")).toBe(true)
+                expect(user.hasOwnProperty("name")).toBe(true)
+                expect(user.hasOwnProperty("avatar_url")).toBe(true)
             })
         })
     });
