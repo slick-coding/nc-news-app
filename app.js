@@ -10,6 +10,7 @@ const {
 } = require("./controllers/articles.controllers.js");
 const { handlePsqlErrors, handleCustomErrors } = require("./errors/errors.js");
 const { deleteCommentById } = require("./controllers/comments.controllers.js");
+const { getUsers } = require("./controllers/users.controllers.js");
 
 const app = express();
 
@@ -30,6 +31,8 @@ app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchArticleById);
 
 app.delete("/api/comments/:comment_id", deleteCommentById);
+
+app.get("/api/users", getUsers);
 
 // Error Endpoints
 
