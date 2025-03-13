@@ -101,6 +101,27 @@ describe("GET /api/articles", () => {
                 });
             });
     });
+    test("200: Responds with an array of articles sorted by title in ascending order", () => {
+        return request(app)
+            .get("/api/articles?sort_by=title&order=asc")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+                expect(articles).toBeSorted({
+                    key: "title",
+                });
+            });
+    });
+    test("200: Responds with an array of articles sorted by votes in descending order", () => {
+        return request(app)
+            .get("/api/articles?sort_by=votes&order=desc")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+                expect(articles).toBeSorted({
+                    key: "votes",
+                    descending: true,
+                });
+            });
+    });
 });
 
 describe("POST api/articles", () => {
@@ -193,6 +214,22 @@ describe("Error Handling", () => {
                     expect(body.msg).toBe("Bad request");
                 });
         });
+        test("400: Responds with an error when given an incorrect column to sort by", () => {
+            return request(app)
+                .get("/api/articles?sort_by=;DROP TABLES;&order=desc")
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
+        test("400: Responds with an error when given an incorrect order", () => {
+            return request(app)
+                .get("/api/articles?sort_by=votes&order=desc;DROP TABLES")
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
     });
     describe("GET /api/articles/article_id/comments", () => {
         test("404: responds with an error when given an article_id that does not exist", () => {
@@ -255,33 +292,35 @@ describe("Error Handling", () => {
                 })
                 .expect(201)
                 .then(({ body: { comment } }) => {
-                    const {body,} = comment;
-                    expect(body).toBe("I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin ' DROP TABLES");
+                    const { body } = comment;
+                    expect(body).toBe(
+                        "I'm suing Mitch for his heinous encouragement of trading illegal bacon stocks on Club Penguin ' DROP TABLES"
+                    );
                 });
         });
     });
     describe("PATCH /api/articles/article_id", () => {
-        test("400: responds with an error when given incorrect data in the patch", () =>{
+        test("400: responds with an error when given incorrect data in the patch", () => {
             return request(app)
-            .patch("/api/articles/1")
-            .send({
-                newVote: "All of them!"
-            })
-            .expect(400)
-            .then(({body}) => {
-                expect(body.msg).toBe("Bad request")
-            })
-        })
+                .patch("/api/articles/1")
+                .send({
+                    newVote: "All of them!",
+                })
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
         test("404: responds with an error when given an incorrect article_id", () => {
             return request(app)
-            .patch("/api/articles/234")
-            .send({
-                inc_votes: 5
-            })
-            .expect(404)
-            .then(({body}) => {
-                expect(body.msg).toBe("Not found")
-            })
-        })
-    })
+                .patch("/api/articles/234")
+                .send({
+                    inc_votes: 5,
+                })
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Not found");
+                });
+        });
+    });
 });
