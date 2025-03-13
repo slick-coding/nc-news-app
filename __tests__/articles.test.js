@@ -214,6 +214,22 @@ describe("Error Handling", () => {
                     expect(body.msg).toBe("Bad request");
                 });
         });
+        test("400: Responds with an error when given an incorrect column to sort by", () => {
+            return request(app)
+                .get("/api/articles?sort_by=;DROP TABLES;&order=desc")
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
+        test("400: Responds with an error when given an incorrect order", () => {
+            return request(app)
+                .get("/api/articles?sort_by=votes&order=desc;DROP TABLES")
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
     });
     describe("GET /api/articles/article_id/comments", () => {
         test("404: responds with an error when given an article_id that does not exist", () => {
