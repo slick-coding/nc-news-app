@@ -1,6 +1,8 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 const { checkExists, commentCountLookup } = require("../db/seeds/utils");
+const { articleData } = require("../db/data/test-data");
+const { sort } = require("../db/data/test-data/articles");
 
 exports.fetchArticlesById = (article_id) => {
     const promises = [
@@ -12,12 +14,29 @@ exports.fetchArticlesById = (article_id) => {
     });
 };
 
-exports.fetchArticles = () => {
+exports.fetchArticles = (sort_by, order) => {
+    const validSortQueries = ["author", "title", "article_id", "topic", "created_at", "votes", "article_img_url"];
+    const validOrderQueries = ["asc", "desc"];
+
+    if (!validSortQueries.includes(sort_by) && order !== undefined) {
+        return Promise.reject({ status: 400, msg: "Bad request" });
+    } else if (!validOrderQueries.includes(order) && sort_by !== undefined) {
+        return Promise.reject({ status: 400, msg: "Bad request" });
+    }
+
     let sqlQuery = "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ";
 
-    sqlQuery += `ORDER BY created_at `;
+    if (validSortQueries.includes(sort_by)) {
+        sqlQuery += `ORDER BY ${sort_by} `;
+    } else {
+        sqlQuery += `ORDER BY created_at `;
+    }
 
-    sqlQuery += "DESC";
+    if (validOrderQueries.includes(order)) {
+        sqlQuery += `${order}`;
+    } else {
+        sqlQuery += "DESC";
+    }
 
     const promises = [db.query(sqlQuery), commentCountLookup()];
 
@@ -64,11 +83,13 @@ exports.updateArticleById = (article_id, newVote) => {
     }
 
     const promises = [
-        db.query(`UPDATE articles 
+        db.query(
+            `UPDATE articles 
             SET votes = votes + $1 
             WHERE article_id = $2 
-            RETURNING *`, 
-            [newVote, article_id]),
+            RETURNING *`,
+            [newVote, article_id]
+        ),
         checkExists("articles", "article_id", article_id),
     ];
 
