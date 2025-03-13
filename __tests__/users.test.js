@@ -9,7 +9,7 @@ beforeAll(() => seed(data));
 afterAll(() => db.end());
 
 describe("GET /api/users", () => {
-    test("Responds with an array of users", () => {
+    test("200: Responds with an array of users", () => {
         return request(app)
         .get("/api/users")
         .expect(200)
@@ -22,3 +22,16 @@ describe("GET /api/users", () => {
         })
     });
 });
+
+describe("Error handling", () => {
+    describe("GET /api/users", () => {
+        test("404: Responds with an error when given an invalid endpoint", () => {
+            return request(app)
+            .get("/api/users; DROP TABLES")
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe("Path not found")
+            })
+        })
+    })
+})
