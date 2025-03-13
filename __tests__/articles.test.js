@@ -260,7 +260,7 @@ describe("Error Handling", () => {
                 });
         });
     });
-    describe("PATCH /api/articles/author_id", () => {
+    describe("PATCH /api/articles/article_id", () => {
         test("400: responds with an error when given incorrect data in the patch", () =>{
             return request(app)
             .patch("/api/articles/1")
@@ -272,7 +272,7 @@ describe("Error Handling", () => {
                 expect(body.msg).toBe("Bad request")
             })
         })
-        test("404: responds with an error when given an author id that is not in the data", () => {
+        test("404: responds with an error when given an incorrect article_id", () => {
             return request(app)
             .patch("/api/articles/234")
             .send({
