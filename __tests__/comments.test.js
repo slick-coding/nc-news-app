@@ -14,8 +14,8 @@ describe("DELETE /api/comments/:comment_id", () => {
             .delete("/api/comments/1")
             .expect(204)
             .then(() => {
-                return db.query("SELECT * FROM comments").then((result) => {
-                    expect(result.length).toBe(17);
+                return db.query("SELECT * FROM comments").then(({rows}) => {
+                    expect(rows.length).toBe(17);
                 });
             });
     });
