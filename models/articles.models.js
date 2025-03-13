@@ -1,8 +1,6 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 const { checkExists, commentCountLookup } = require("../db/seeds/utils");
-const { articleData } = require("../db/data/test-data");
-const { sort } = require("../db/data/test-data/articles");
 
 exports.fetchArticlesById = (article_id) => {
     const promises = [
@@ -14,7 +12,7 @@ exports.fetchArticlesById = (article_id) => {
     });
 };
 
-exports.fetchArticles = (sort_by, order) => {
+exports.fetchArticles = (sort_by, order, topic) => {
     const validSortQueries = ["author", "title", "article_id", "topic", "created_at", "votes", "article_img_url"];
     const validOrderQueries = ["asc", "desc"];
 
@@ -25,6 +23,12 @@ exports.fetchArticles = (sort_by, order) => {
     }
 
     let sqlQuery = "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ";
+    const queryValues = []
+
+    if (topic) {
+        sqlQuery += "WHERE topic = $1 "
+        queryValues.push(topic)
+    }
 
     if (validSortQueries.includes(sort_by)) {
         sqlQuery += `ORDER BY ${sort_by} `;
@@ -38,7 +42,11 @@ exports.fetchArticles = (sort_by, order) => {
         sqlQuery += "DESC";
     }
 
-    const promises = [db.query(sqlQuery), commentCountLookup()];
+    console.log(sqlQuery)
+
+    const promises = [db.query(sqlQuery, queryValues), commentCountLookup()];
+
+    if (topic){promises.push(checkExists("articles", "topic", topic))}
 
     return Promise.all(promises).then(([{ rows }, commentLookup]) => {
         return rows.map((row) => {
