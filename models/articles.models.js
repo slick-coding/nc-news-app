@@ -5,9 +5,11 @@ const { checkExists, commentCountLookup } = require("../db/seeds/utils");
 exports.fetchArticlesById = (article_id) => {
     const promises = [
         db.query(`SELECT * FROM articles where article_id = $1`, [article_id]),
+        commentCountLookup(),
         checkExists("articles", "article_id", article_id),
     ];
-    return Promise.all(promises).then(([{ rows }]) => {
+    return Promise.all(promises).then(([{ rows }, comment_count]) => {
+        rows[0].comment_count = comment_count[article_id]
         return rows[0];
     });
 };

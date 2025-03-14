@@ -23,9 +23,18 @@ describe("GET /api/articles/article_id", () => {
                 expect(articles.votes).toBe(0);
                 expect(articles.article_img_url).toBe(
                     "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-                );
+                )
+                expect(articles.comment_count).toBe(0);
             });
     });
+    test("200: Responds with the article id with the correct comment count", () => {
+        return request(app)
+            .get("/api/articles/1")
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.comment_count).toBe(11)
+            })
+    })
 });
 
 describe("GET /api/articles/article_id/comments", () => {
