@@ -11,8 +11,11 @@ const {
 const { handlePsqlErrors, handleCustomErrors } = require("./errors/errors.js");
 const { deleteCommentById } = require("./controllers/comments.controllers.js");
 const { getUsers } = require("./controllers/users.controllers.js");
+const cors = require('cors')
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 
